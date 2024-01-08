@@ -1,6 +1,9 @@
 const express = require("express");
 var morgan = require("morgan");
+const cors = require("cors");
+
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 let data = [
@@ -89,6 +92,17 @@ app.post("/api/persons", (req, res) => {
     data.push(newData);
     res.status(201).json(newData);
   }
+});
+
+app.put("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const updatedPerson = {
+    id: id,
+    name: req.body.name,
+    number: req.body.number,
+  };
+  data = data.map((person) => (person.id === id ? updatedPerson : person));
+  res.status(201).json(updatedPerson);
 });
 
 const PORT = 3001;
