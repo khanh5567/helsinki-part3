@@ -49,9 +49,15 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  data = data.filter((person) => person.id !== id);
-  res.status(204).end();
+  Person.findByIdAndDelete(req.params.id)
+    .then((deletedPerson) => {
+      if (deletedPerson) res.status(204).end();
+      else res.status(404).json({ error: "Person Not Found" });
+    })
+    .catch((error) => {
+      console.log(error);
+      next(error);
+    });
 });
 
 app.post("/api/persons", (req, res) => {
