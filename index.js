@@ -48,7 +48,7 @@ app.get("/api/persons/:id", (req, res) => {
   else res.status(404).json({ error: "No record found" });
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then((deletedPerson) => {
       if (deletedPerson) res.status(204).end();
@@ -86,6 +86,16 @@ app.put("/api/persons/:id", (req, res) => {
   data = data.map((person) => (person.id === id ? updatedPerson : person));
   res.status(201).json(updatedPerson);
 });
+
+const errorHandlerMiddleware = (error, request, response, next) => {
+  console.log(error);
+
+  if (error.name === "CastError")
+    response.status(400).json({ error: "Invalid ID format" });
+  else next(error);
+};
+
+app.use(errorHandlerMiddleware);
 
 const PORT = 3001;
 app.listen(PORT);
