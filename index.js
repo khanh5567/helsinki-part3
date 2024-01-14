@@ -36,9 +36,9 @@ app.get("/api/persons", (req, res) => {
 });
 
 app.get("/api/info", (req, res) => {
-  const message = "Phonebook has info for " + data.length + " people";
-  const date = new Date(8.64e15).toString();
-  res.status(200).send(`${message}<br>${date}`);
+  // const message = "Phonebook has info for " + data.length + " people";
+  // const date = new Date(8.64e15).toString();
+  // res.status(200).send(`${message}<br>${date}`);
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -76,15 +76,16 @@ app.post("/api/persons", (req, res) => {
   }
 });
 
-app.put("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
+app.put("/api/persons/:id", (req, res, next) => {
   const updatedPerson = {
-    id: id,
     name: req.body.name,
     number: req.body.number,
   };
-  data = data.map((person) => (person.id === id ? updatedPerson : person));
-  res.status(201).json(updatedPerson);
+  Person.findByIdAndUpdate(req.params.id, updatedPerson, { new: true })
+    .then((returnedPerson) => {
+      res.status(201).json(returnedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 const errorHandlerMiddleware = (error, request, response, next) => {
