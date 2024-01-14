@@ -36,16 +36,20 @@ app.get("/api/persons", (req, res) => {
 });
 
 app.get("/api/info", (req, res) => {
-  // const message = "Phonebook has info for " + data.length + " people";
-  // const date = new Date(8.64e15).toString();
-  // res.status(200).send(`${message}<br>${date}`);
+  Person.countDocuments({}).then((count) => {
+    const message = "Phonebook has info for " + count + " people";
+    const date = new Date(8.64e15).toString();
+    res.status(200).send(`${message}<br>${date}`);
+  });
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = req.params.id;
-  const person = data[id]; //no need to check out of bound hehe
-  if (person) res.json(person);
-  else res.status(404).json({ error: "No record found" });
+app.get("/api/persons/:id", (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((returnedPerson) => {
+      if (returnedPerson) res.json(returnedPerson);
+      else res.status(404).json({ error: "No record found" });
+    })
+    .catch((error) => next(error));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
