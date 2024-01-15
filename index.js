@@ -64,19 +64,18 @@ app.delete("/api/persons/:id", (req, res, next) => {
     });
 });
 
-app.post("/api/persons", (req, res) => {
-  const name = req.body.name;
-  const number = req.body.number;
+app.post("/api/persons", (req, res, next) => {
+  const { name, number } = req.body;
 
   if (!name || !number) res.status(400).json({ error: "Missing body" });
   else {
-    const newPerson = new Person({
-      name: name,
-      number: number,
-    });
-    newPerson.save().then((savedPerson) => {
-      res.json(savedPerson);
-    });
+    const newPerson = new Person({ name, number });
+    newPerson
+      .save()
+      .then((savedPerson) => {
+        res.json(savedPerson);
+      })
+      .catch((error) => next(error));
   }
 });
 
@@ -85,7 +84,11 @@ app.put("/api/persons/:id", (req, res, next) => {
     name: req.body.name,
     number: req.body.number,
   };
-  Person.findByIdAndUpdate(req.params.id, updatedPerson, { new: true })
+  Person.findByIdAndUpdate(req.params.id, updatedPerson, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
     .then((returnedPerson) => {
       res.status(201).json(returnedPerson);
     })
@@ -97,6 +100,8 @@ const errorHandlerMiddleware = (error, request, response, next) => {
 
   if (error.name === "CastError")
     response.status(400).json({ error: "Invalid ID format" });
+  else if (error.name === "ValidationError")
+    response.status(400).json({ error: error.message });
   else next(error);
 };
 
