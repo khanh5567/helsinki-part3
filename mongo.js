@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const arg_len = process.argv.length;
-if (arg_len < 3) {
+const argLen = process.argv.length;
+if (argLen < 3) {
   console.log("provide password");
   process.exit(1);
 }
@@ -20,13 +20,13 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model("Person", personSchema);
 
-if (arg_len === 3) {
+if (argLen === 3) {
   Person.find({}).then((result) => {
     console.log("phonebook");
     result.forEach((person) => console.log(person.name + " " + person.number));
     mongoose.connection.close();
   });
-} else if (arg_len !== 5) {
+} else if (argLen !== 5) {
   console.log("give name and number as arguments");
   process.exit(1);
 } else {
